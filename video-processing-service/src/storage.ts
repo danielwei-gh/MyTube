@@ -1,6 +1,7 @@
 import { Storage } from "@google-cloud/storage";
-import fs from "fs";
-import ffmpeg from "fluent-ffmpeg";
+import fs from 'fs';
+import ffmpeg from 'fluent-ffmpeg';
+
 
 const storage = new Storage();
 
@@ -27,12 +28,12 @@ export function convertVideo(rawVideoName: string, processedVideoName: string) {
     return new Promise<void>((resolve, reject) => {
         ffmpeg(`${localRawVideoPath}/${rawVideoName}`)
             .outputOptions("-vf", "scale=-1:360") // 360p
-            .on("end", () => {
+            .on("end", function () {
                 console.log("Processing finished successfully");
                 resolve();
             })
-            .on("error", (err) => {
-                console.log(`An error occurred: ${err.message}`);
+            .on("error", function (err: any) {
+                console.log("An error occurred: " + err.message);
                 reject(err);
             })
             .save(`${localProcessedVideoPath}/${processedVideoName}`);
@@ -40,23 +41,24 @@ export function convertVideo(rawVideoName: string, processedVideoName: string) {
 }
 
 /**
- * @param fileName - The name of the file to download from the
+ * @param fileName - The name of the file to download from the 
  * {@link rawVideoBucketName} bucket into the {@link localRawVideoPath} folder.
  * @returns A promise that resolves when the file has been downloaded.
  */
 export async function downloadRawVideo(fileName: string) {
-    await storage
-        .bucket(rawVideoBucketName)
+    await storage.bucket(rawVideoBucketName)
         .file(fileName)
-        .download({ destination: `${localRawVideoPath}/${fileName}` });
+        .download({
+            destination: `${localRawVideoPath}/${fileName}`,
+        });
 
     console.log(
-        `gs://${rawVideoBucketName}/${fileName} downloaded to ${localRawVideoPath}/${fileName}`
+        `gs://${rawVideoBucketName}/${fileName} downloaded to ${localRawVideoPath}/${fileName}.`
     );
 }
 
 /**
- * @param fileName - The name of the file to upload from the
+ * @param fileName - The name of the file to upload from the 
  * {@link localProcessedVideoPath} folder into the {@link processedVideoBucketName}.
  * @returns A promise that resolves when the file has been uploaded.
  */
@@ -64,11 +66,12 @@ export async function uploadProcessedVideo(fileName: string) {
     const bucket = storage.bucket(processedVideoBucketName);
 
     // Upload video to the bucket
-    await bucket.upload(`${localProcessedVideoPath}/${fileName}`, {
-        destination: fileName,
-    });
+    await storage.bucket(processedVideoBucketName)
+        .upload(`${localProcessedVideoPath}/${fileName}`, {
+            destination: fileName,
+        });
     console.log(
-        `${localProcessedVideoPath}/${fileName} uploaded to gs://${processedVideoBucketName}/${fileName}`
+        `${localProcessedVideoPath}/${fileName} uploaded to gs://${processedVideoBucketName}/${fileName}.`
     );
 
     // Set the video to be publicly readable
@@ -104,7 +107,7 @@ function deleteFile(filePath: string): Promise<void> {
         if (fs.existsSync(filePath)) {
             fs.unlink(filePath, (err) => {
                 if (err) {
-                    console.log(`Failed to delete file at ${filePath}`, err);
+                    console.error(`Failed to delete file at ${filePath}`, err);
                     reject(err);
                 } else {
                     console.log(`File deleted at ${filePath}`);
@@ -112,7 +115,7 @@ function deleteFile(filePath: string): Promise<void> {
                 }
             });
         } else {
-            console.log(`File not found at ${filePath}, skipping the delete`);
+            console.log(`File not found at ${filePath}, skipping delete.`);
             resolve();
         }
     });

@@ -1,5 +1,13 @@
-import express from "express";
-import { convertVideo, deleteProcessedVideo, deleteRawVideo, downloadRawVideo, setupDirectories, uploadProcessedVideo } from "./storage";
+import express from 'express';
+
+import {
+    uploadProcessedVideo,
+    downloadRawVideo,
+    deleteRawVideo,
+    deleteProcessedVideo,
+    convertVideo,
+    setupDirectories
+} from './storage';
 
 // Create the local directories for videos
 setupDirectories();
@@ -8,7 +16,7 @@ const app = express();
 app.use(express.json());
 
 // Process a video file from Cloud Storage into 360p
-app.post("/process-video", async (req, res) => {
+app.post('/process-video', async (req, res) => {
 
     // Get the bucket and filename from the Cloud Pub/Sub message
     let data;
@@ -16,11 +24,11 @@ app.post("/process-video", async (req, res) => {
         const message = Buffer.from(req.body.message.data, 'base64').toString('utf8');
         data = JSON.parse(message);
         if (!data.name) {
-            throw new Error('Invalid message payload recieved')
+            throw new Error('Invalid message payload received.');
         }
-    } catch (err) {
-        console.error(err);
-        return res.status(400).send('Bad Request: missing filename');
+    } catch (error) {
+        console.error(error);
+        return res.status(400).send('Bad Request: missing filename.');
     }
 
     const inputFileName = data.name;
@@ -31,14 +39,13 @@ app.post("/process-video", async (req, res) => {
 
     // Process the video into 360p
     try {
-        await convertVideo(inputFileName, outputFileName);
+        await convertVideo(inputFileName, outputFileName)
     } catch (err) {
         await Promise.all([
             deleteRawVideo(inputFileName),
             deleteProcessedVideo(outputFileName)
         ]);
-        console.error(err);
-        return res.status(500).send('Internal Server Error: video processing failed');
+        return res.status(500).send('Processing failed');
     }
 
     // Upload the processed video to Cloud Storage
@@ -54,5 +61,5 @@ app.post("/process-video", async (req, res) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
