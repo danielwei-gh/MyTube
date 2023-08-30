@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Fragment } from "react";
 
@@ -7,25 +7,23 @@ import styles from "./sign-in.module.css";
 import { User } from "firebase/auth";
 
 interface SignInProps {
-    user: User | null;
+  user: User | null;
 }
 
 export default function SignIn({ user }: SignInProps) {
-    return (
-        <Fragment>
-            {   
-                user ? ( 
-                    // If user is signed in, show a welcome message (or something else)
-                    <button className={styles.signin} onClick={signOut}>
-                        Sign Out
-                    </button>
-                ) : ( 
-                    // If user is not signed in, show sign-in button
-                    <button className={styles.signin} onClick={signInWithGoogle}>
-                        Sign In
-                    </button>
-                )
-            }
-        </Fragment>
-    )
+  return (
+    <Fragment>
+      {user ? (
+        // If user is signed in, show a welcome message (or something else)
+        <button className={styles.signin} onClick={signOut}>
+          Sign Out
+        </button>
+      ) : (
+        // If user is not signed in, show sign-in button
+        <button className={styles.signin} onClick={signInWithGoogle}>
+          Sign In
+        </button>
+      )}
+    </Fragment>
+  );
 }
