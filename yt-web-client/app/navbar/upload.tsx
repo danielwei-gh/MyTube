@@ -1,9 +1,9 @@
 'use client';
 
-import React, { Fragment } from "react";
-import { uploadVideo } from "../firebase/functions";
+import React, { Fragment } from 'react';
+import { uploadVideo } from '../firebase/functions';
 
-import styles from "./upload.module.css";
+import styles from './upload.module.css';
 
 export default function Upload() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
